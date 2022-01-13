@@ -14,11 +14,8 @@ body {
   letter-spacing: 0.045rem;
   height: 100%;
   position:relative;
-  background: #F5F7FD;
   line-height: 2rem;
-  padding: 30px;
 }
 a {
-  color: #3923A9;
   text-decoration: none;
 }
