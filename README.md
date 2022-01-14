@@ -1,16 +1,13 @@
-# Provenance.io | WalletConnect-JS | WebDemo
-
-## Run a web demo straight from this application to test out new and existing features of the parent walletconnect-js module
+# Provenance.io | Name/Invoice??? Service
 
 ### Get Started:
 
-1) Run `npm i` within the `walletconnect-js`
+1) Run `npm i`
+2) Run `npm run start` to run a file watch + local server.
   - Note:
-    - This should run a build and create 3 untracked folders within the base directory, `esm`, `lib`, and `node_modules`
-2) Run `npm run start` to run a file watch + local server with webDemo.
-  - Note:
-    - It will also build the untracked `node_modules` folder within this directory `/webDemo`
-    - If it doesn't automatically, navigate to `http://localhost:3000/walletconnect`
+    - If it doesn't automatically, navigate to `http://localhost:3000/`
 
-* At this point, any changes you make to the walletconnect-js files should kick off a rebuilt and be visible in the webDemo application
-  - The webDemo links to the parent folder similar to how `npm link` works.  Look within `package.json` for more information.
+* At this point, any changes you make to files should kick off a rebuilt and be visible in the application
+
+### Envoy Proxy
+To run a local envoy proxy allowing for grpc-web interaction with your local node, run `./start_envoy.sh` from within the `envoy` directory (note: docker must be running)

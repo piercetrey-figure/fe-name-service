@@ -1,7 +1,7 @@
 {
-  "name": "walletconnect-js-webdemo",
+  "name": "name-invoice-service",
   "version": "0.1.0",
-  "homepage": "/walletconnect",
+  "homepage": "/",
   "license": "Apache-2.0",
   "private": false,
   "devDependencies": {
