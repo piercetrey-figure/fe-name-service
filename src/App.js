@@ -98,8 +98,11 @@ export const App = () => {
     if (address) {
       console.log(`querying balances`);
       grpcService
-        .getBalancesList(address)
-        .then((balances) => setBalances(balances.balancesList));
+        .getBalancesList("tp1hslffrztjp399d86a25fh2khg0c6je3achzhyj")
+        .then((balances) => {
+          setBalances(balances.balancesList);
+          console.log("received balances", balances.balancesList);
+        });
     } else {
       console.log("clearing balances");
       setBalances([]);
