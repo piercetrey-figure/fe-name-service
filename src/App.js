@@ -9,13 +9,15 @@ import {
   Input,
   Popup,
 } from "Components";
-import { ALL_ACTIONS } from "consts";
+import { ALL_ACTIONS, GRPC_URL, ROOT_NAME } from "consts";
 import { REACT_APP_WCJS_VERSION } from "./version"; // eslint-disable-line
 import { EXPLORER_URL } from "consts";
 import { useWallet } from "@provenanceio/wallet-lib";
 import { TEXT_ACCENT, PRIMARY_BACKGROUND, TEXT } from "./consts/colors";
 import { Header, SubHeader } from "Components/Headers";
 import { RegisterName } from "Components/RegisterName";
+import { WasmService } from "Services";
+import { NameContractService } from "./Services/NameContractService";
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -90,29 +92,15 @@ export const App = () => {
   dropdownOptions.unshift("Select Method/Action...");
 
   const { grpcService } = useWallet();
-
-  // TODO: remove this balances block, this is just a grpc-web test...
-  const [balances, setBalances] = useState([]);
-  useEffect(() => {
-    console.log(`address is ${address}`);
-    if (address) {
-      console.log(`querying balances`);
-      grpcService
-        .getBalancesList("tp1hslffrztjp399d86a25fh2khg0c6je3achzhyj")
-        .then((balances) => {
-          setBalances(balances.balancesList);
-          console.log("received balances", balances.balancesList);
-        });
-    } else {
-      console.log("clearing balances");
-      setBalances([]);
-    }
-  }, [address]);
+  const wasmService = new WasmService();
+  const nameContractService = new NameContractService(ROOT_NAME);
 
   const [registeredNames, setRegisteredNames] = useState([]);
   useEffect(() => {
     if (address) {
-      setRegisteredNames(["todo:", "your", "names", "here"]);
+      nameContractService
+        .listNames(address)
+        .then((names) => setRegisteredNames(names));
     } else {
       setRegisteredNames([]);
     }
@@ -178,8 +166,19 @@ export const App = () => {
               </NameList>
               <RegisterName
                 onRegister={(name) => {
-                  alert(`todo: register name ${name}`);
-                  return Promise.resolve();
+                  return nameContractService
+                    .generateNameRegisterMessage(name)
+                    .then((msg) => {
+                      const rawMsg = Buffer.from(
+                        msg.serializeBinary()
+                      ).toString("base64");
+                      console.log("generated message", msg, rawMsg);
+                      wcs.customAction({
+                        message: rawMsg,
+                        description: `Register ${name} to ${address}`,
+                        method: msg.getTypeUrl(),
+                      });
+                    });
                 }}
               />
               <Disconnect walletConnectService={wcs} setPopup={setPopup} />

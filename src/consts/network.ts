@@ -4,3 +4,5 @@ export const EXPLORER_URL = PRODUCTION ? 'https://explorer.provenance.io' : 'htt
 // export const GRPC_URL = PRODUCTION ? 'https://wallet.provenance.io/proxy' : 'https://wallet.test.provenance.io/proxy'
 export const GRPC_URL = 'http://localhost:8080'
 export const WALLET_URL = PRODUCTION ? 'https://wallet.provenance.io' : 'https://wallet.test.provenance.io'
+export const ROOT_NAME = 'wallettest2.pb'
+export const FEE_DENOM = 'nhash'
