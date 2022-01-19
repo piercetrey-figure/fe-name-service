@@ -30,6 +30,31 @@ export interface QueryAddressByNameResponse {
     name: string
 }
 
+export class SearchNamesRequest {
+    search_for_names: {
+        search: string
+    }
+
+    constructor(search: string) {
+        this.search_for_names = { search };
+    }
+}
+
+export class NameMetaData {
+    name: string
+    address: string
+
+    constructor(name: string, address: string) {
+        this.name = name;
+        this.address = address;
+    }
+}
+
+export interface SearchNamesQueryResponse {
+    search: string,
+    names: NameMetaData[]
+}
+
 export class QuerySettings {
     query_request: {} = {}
 }

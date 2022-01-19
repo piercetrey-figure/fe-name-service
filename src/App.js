@@ -26,6 +26,7 @@ import { ConversionUtil } from "./util/ConversionUtil";
 import { TabContainer } from "Components/Tabs";
 import { NameLookup } from "Components/NameLookup";
 import { Name, NameList } from "Components/NameList";
+import { NameSearch } from "Components/NameSearch";
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -213,6 +214,10 @@ export const App = () => {
                   {
                     title: "Name Lookup",
                     element: <NameLookup />,
+                  },
+                  {
+                    title: "Name Search",
+                    element: <NameSearch />,
                   },
                 ]}
               />

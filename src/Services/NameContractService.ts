@@ -1,4 +1,13 @@
-import { QueryAddressByName, QueryAddressByNameResponse, QueryNamesByAddress, QueryNamesByAddressResponse, QuerySettingsResponse } from 'models';
+import {
+    NameMetaData,
+    QueryAddressByName,
+    QueryAddressByNameResponse,
+    QueryNamesByAddress,
+    QueryNamesByAddressResponse,
+    QuerySettingsResponse,
+    SearchNamesQueryResponse,
+    SearchNamesRequest,
+} from 'models';
 import { WasmService } from 'Services';
 import { MsgExecuteContract } from '@provenanceio/wallet-lib/lib/proto/cosmwasm/wasm/v1/tx_pb'
 import { Coin } from '@provenanceio/wallet-lib/lib/proto/cosmos/base/v1beta1/coin_pb'
@@ -37,6 +46,12 @@ export class NameContractService {
         const queryRes = await this.wasmService.queryWasmCustom<QueryAddressByName, QueryAddressByNameResponse>(await this.getContractAddress(), new QueryAddressByName(name))
         
         return queryRes.address
+    }
+
+    async searchNames(search: string): Promise<NameMetaData[]> {
+        const queryRes = await this.wasmService.queryWasmCustom<SearchNamesRequest, SearchNamesQueryResponse>(await this.getContractAddress(), new SearchNamesRequest(search));
+
+        return queryRes.names;
     }
 
     async generateNameRegisterBase64Message(name: string, address: string): Promise<string> {
