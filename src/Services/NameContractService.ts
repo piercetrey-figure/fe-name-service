@@ -15,47 +15,45 @@ export class NameContractService {
         this.rootName = rootName
     }
 
-    getContractAddress(): Promise<string> {
+    async getContractAddress(): Promise<string> {
         if (this.contractAddress != null) {
-            return Promise.resolve(this.contractAddress)
+            return this.contractAddress
         }
-        return this.wasmService.lookupContractByName(this.rootName)
-            .then(addr => this.contractAddress = addr)
+        this.contractAddress = await this.wasmService.lookupContractByName(this.rootName)
+        return this.contractAddress
     }
 
-    getContractConfig(): Promise<QuerySettingsResponse> {
-        return this.getContractAddress()
-            .then(contractAddr => this.wasmService.queryWasmCustom<QuerySettings, QuerySettingsResponse>(contractAddr, new QuerySettings()))
+    async getContractConfig(): Promise<QuerySettingsResponse> {
+        return this.wasmService.queryWasmCustom<QuerySettings, QuerySettingsResponse>(await this.getContractAddress(), new QuerySettings())
     }
 
-    listNames(address: string): Promise<string[]> {
-        return this.getContractAddress()
-            .then(contractAddr => this.wasmService.queryWasmCustom<QueryNamesByAddress, QueryNamesByAddressResponse>(contractAddr, new QueryNamesByAddress(address)))
-            .then(queryRes => queryRes.names)
+    async listNames(address: string): Promise<string[]> {
+        const queryRes = await this.wasmService.queryWasmCustom<QueryNamesByAddress, QueryNamesByAddressResponse>(await this.getContractAddress(), new QueryNamesByAddress(address))
+        
+        return queryRes.names
     }
 
-    resolveName(name: string): Promise<string> {
-        return this.getContractAddress()
-            .then(contractAddr => this.wasmService.queryWasmCustom<QueryAddressByName, QueryAddressByNameResponse>(contractAddr, new QueryAddressByName(name)))
-            .then(queryRes => queryRes.address)
+    async resolveName(name: string): Promise<string> {
+        const queryRes = await this.wasmService.queryWasmCustom<QueryAddressByName, QueryAddressByNameResponse>(await this.getContractAddress(), new QueryAddressByName(name))
+        
+        return queryRes.address
     }
 
-    generateNameRegisterBase64Message(name: string, address: string): Promise<string> {
-        return Promise.all([
+    async generateNameRegisterBase64Message(name: string, address: string): Promise<string> {
+        const [contractAddr, contractConfig] = await Promise.all([
             this.getContractAddress(),
             this.getContractConfig()
         ])
-        .then(([contractAddr, contractConfig]) => {
-            const message = new MsgExecuteContract()
-                .setMsg(Buffer.from(new RegisterName().setName(name).toJson(), 'utf-8').toString('base64'))
-                .setFundsList([new Coin().setAmount(contractConfig.fee_amount).setDenom(FEE_DENOM)])
-                .setContract(contractAddr)
-                .setSender(address);
-            // Directly hardcoded from https://github.com/CuCreekCo/ProvenanceWalletConnect/blob/d2227d716ddb3f95783624b50e0e70220e33a858/ProvenanceWalletConnect/Handlers/WalletConnectHandlers.swift#L408
-            const any = new Any()
-                .setTypeUrl("/cosmwasm.wasm.v1.MsgExecuteContract")
-                .setValue(message.serializeBinary());
-            return Buffer.from(any.serializeBinary()).toString("base64");
-        })
+        
+        const message = new MsgExecuteContract()
+            .setMsg(Buffer.from(new RegisterName().setName(name).toJson(), 'utf-8').toString('base64'))
+            .setFundsList([new Coin().setAmount(contractConfig.fee_amount).setDenom(FEE_DENOM)])
+            .setContract(contractAddr)
+            .setSender(address);
+        // Directly hardcoded from https://github.com/CuCreekCo/ProvenanceWalletConnect/blob/d2227d716ddb3f95783624b50e0e70220e33a858/ProvenanceWalletConnect/Handlers/WalletConnectHandlers.swift#L408
+        const any = new Any()
+            .setTypeUrl("/cosmwasm.wasm.v1.MsgExecuteContract")
+            .setValue(message.serializeBinary());
+        return Buffer.from(any.serializeBinary()).toString("base64");
     }
 }

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import {useWalletConnect, QRCodeModal, WINDOW_MESSAGES as WINDOW_MESSAGE} from "@provenanceio/walletconnect-js";
+import {
+  useWalletConnect,
+  QRCodeModal,
+  WINDOW_MESSAGES as WINDOW_MESSAGE,
+} from "@provenanceio/walletconnect-js";
 import styled from "styled-components";
 import {
   Action,
@@ -19,7 +23,6 @@ import { RegisterName } from "Components/RegisterName";
 import { WasmService } from "Services";
 import { NameContractService } from "./Services/NameContractService";
 import { ConversionUtil } from "./util/ConversionUtil";
-
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -91,33 +94,10 @@ export const App = () => {
     }
   };
 
-  useEffect(() => {
-    if (!listenersAdded) {
-      console.log("Adding event listeners");
-      setListenersAdded(true);
-      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
-        // TODO: Reload names after a successful custom action
-        console.log(`WalletConnectJS | Custom Action Complete | Result: `, result);
-      });
-
-      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_FAILED, (result) => {
-        const { error } = result;
-        console.log(`WalletConnectJS | Custom Action Failed | result, error: `, result, error);
-      });
-    }
-  }, [listenersAdded]);
-
-
-  const dropdownOptions = ALL_ACTIONS.map(({ method }) => method);
-  dropdownOptions.sort();
-  dropdownOptions.unshift("Select Method/Action...");
-
-  const { grpcService } = useWallet();
-  const wasmService = new WasmService();
   const nameContractService = new NameContractService(ROOT_NAME);
-
   const [registeredNames, setRegisteredNames] = useState([]);
-  useEffect(() => {
+
+  const fetchNames = () => {
     if (address) {
       nameContractService
         .listNames(address)
@@ -125,35 +105,54 @@ export const App = () => {
     } else {
       setRegisteredNames([]);
     }
-  }, [address]);
+  };
 
   useEffect(() => {
+    fetchNames();
+  }, [address]);
+
+  const { grpcService } = useWallet();
+
+  const fetchBalance = () => {
     if (address) {
-      grpcService.getBalancesList(address)
-          .then(balances => {
-            let hashAmount = ConversionUtil.getHashBalance(balances);
-            if (hashAmount) {
-              setHashAmount(hashAmount);
-            }
-          });
+      grpcService.getBalancesList(address).then((balances) => {
+        let hashAmount = ConversionUtil.getHashBalance(balances);
+        if (hashAmount) {
+          setHashAmount(hashAmount);
+        }
+      });
     } else {
       setHashAmount(null);
     }
-  })
+  };
+  useEffect(() => {
+    fetchBalance();
+  }, [address]);
 
-  const renderActions = () =>
-    ALL_ACTIONS.map(({ method, fields, buttonTxt, windowMessage }) =>
-      activeMethod === method ? (
-        <Action
-          key={method}
-          method={method}
-          setPopup={setPopup}
-          fields={fields}
-          buttonTxt={buttonTxt}
-          windowMessage={windowMessage}
-        />
-      ) : null
-    );
+  useEffect(() => {
+    if (!listenersAdded) {
+      console.log("Adding event listeners");
+      setListenersAdded(true);
+      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
+        // TODO: Reload names after a successful custom action
+        console.log(
+          `WalletConnectJS | Custom Action Complete | Result: `,
+          result
+        );
+        fetchNames();
+        fetchBalance();
+      });
+
+      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_FAILED, (result) => {
+        const { error } = result;
+        console.log(
+          `WalletConnectJS | Custom Action Failed | result, error: `,
+          result,
+          error
+        );
+      });
+    }
+  }, [listenersAdded]);
 
   return (
     <Wrapper>
@@ -193,11 +192,7 @@ export const App = () => {
                   {address}
                 </a>
               </Text>
-              {hashAmount && (
-                  <Text>
-                    Hash Balance:{" "}{hashAmount}
-                  </Text>
-              )}
+              {hashAmount && <Text>Hash Balance: {hashAmount}</Text>}
               <SubHeader>Your registered names</SubHeader>
               <NameList>
                 {registeredNames.map((name) => (
@@ -205,17 +200,17 @@ export const App = () => {
                 ))}
               </NameList>
               <RegisterName
-                  onRegister={(name) => {
-                    return nameContractService
-                        .generateNameRegisterBase64Message(name, address)
-                        .then((msg) => {
-                          wcs.customAction({
-                            message: msg,
-                            description: `Register ${name} to ${address}`,
-                            method: "provenance_sendTransaction",
-                          });
-                        });
-                  }}
+                onRegister={async (name) => {
+                  return wcs.customAction({
+                    message:
+                      await nameContractService.generateNameRegisterBase64Message(
+                        name,
+                        address
+                      ),
+                    description: `Register ${name} to ${address}`,
+                    method: "provenance_sendTransaction",
+                  });
+                }}
               />
               <Disconnect walletConnectService={wcs} setPopup={setPopup} />
             </>

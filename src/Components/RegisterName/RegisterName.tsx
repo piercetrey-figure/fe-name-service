@@ -14,15 +14,16 @@ export const RegisterName: FunctionComponent<RegisterNameProps> = ({ onRegister 
 
     const handleRegistration = () => {
         setRegistering(true)
-        onRegister(newName).finally(() => {
+        onRegister(newName).then(() => {
             setNewName('')
+        }).finally(() => {
             setRegistering(false)
         })
     }
 
     return <RegisterWrapper>
         <SubHeader>Register a new name</SubHeader>
-        <Input value={newName} onChange={(n) => setNewName(n)} />
+        <Input disabled={registering} value={newName} onChange={(n) => setNewName(n)} />
         <Button disabled={registering || !nameValid} type="submit" onClick={handleRegistration}>Register</Button>
     </RegisterWrapper>
 }

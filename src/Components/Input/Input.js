@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
+import styled from "styled-components";
+import PropTypes from "prop-types";
 
 const InputContainer = styled.div`
   position: relative;
@@ -13,23 +13,32 @@ const StyledInput = styled.input`
   box-sizing: content-box;
   border-radius: 0;
   margin-right: 4px;
-  border: 1px solid #DDDDDD;
+  border: 1px solid #dddddd;
 `;
 const Label = styled.label`
-  font-size: 1.0rem;
+  font-size: 1rem;
   font-weight: 700;
   position: absolute;
   top: -16px;
   left: 0;
 `;
 
-const Input = ({ className, label, value, onChange, placeholder, width }) => (
+const Input = ({
+  className,
+  label,
+  value,
+  onChange,
+  placeholder,
+  width,
+  disabled,
+}) => (
   <InputContainer width={width} className={className}>
     {label && <Label>{label}</Label>}
     <StyledInput
       value={value}
       placeholder={placeholder}
       onChange={({ target }) => onChange(target.value)}
+      disabled={disabled}
     />
   </InputContainer>
 );
@@ -41,14 +50,15 @@ Input.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func,
   placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  disabled: PropTypes.bool,
 };
 Input.defaultProps = {
-  className: '',
-  width: '100%',
-  label: '',
-  value: '',
+  className: "",
+  width: "100%",
+  label: "",
+  value: "",
   onChange: () => {},
-  placeholder: 'Enter Value',
+  placeholder: "Enter Value",
 };
 
 export default Input;
