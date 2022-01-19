@@ -23,8 +23,10 @@ export const RegisterName: FunctionComponent<RegisterNameProps> = ({ onRegister 
 
     return <RegisterWrapper>
         <SubHeader>Register a new name</SubHeader>
-        <Input disabled={registering} value={newName} onChange={(n) => setNewName(n)} />
-        <Button disabled={registering || !nameValid} type="submit" onClick={handleRegistration}>Register</Button>
+        <form>
+            <Input disabled={registering} value={newName} onChange={(n) => setNewName(n)} />
+            <Button disabled={registering || !nameValid} type="submit" onClick={handleRegistration}>Register</Button>
+        </form>
     </RegisterWrapper>
 }
 
