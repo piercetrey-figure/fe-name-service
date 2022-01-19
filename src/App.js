@@ -209,7 +209,6 @@ export const App = () => {
                     .generateNameRegisterMessage(name, address)
                     .then((msg) => {
                         console.log("generated message", msg);
-                        wcs.transaction()
                         wcs.customAction({
                           message: msg,
                           description: `Register ${name} to ${address}`,
