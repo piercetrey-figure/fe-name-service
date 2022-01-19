@@ -37,10 +37,11 @@ export const RegisterName: FunctionComponent<RegisterNameProps> = ({ currentHash
 
     return <RegisterWrapper>
         <SubHeader>Register a new name</SubHeader>
-        {registrationCostHash && <CostDisplay registrationCost={registrationCostHash} notEnoughHash={notEnoughHash} />}
-        <Input disabled={registrationDisabled} value={newName} onChange={(n) => setNewName(n)} />
-        <Button disabled={registrationDisabled || !nameValid} type="submit" onClick={handleRegistration}>Register</Button>
-    </RegisterWrapper>;
+        <form>
+            <Input disabled={registrationDisabled} value={newName} onChange={(n) => setNewName(n)} />
+            <Button disabled={registrationDisabled || !nameValid} type="submit" onClick={handleRegistration}>Register</Button>
+        </form>
+    </RegisterWrapper>
 }
 
 const RegisterWrapper = styled.div`

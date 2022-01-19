@@ -29,7 +29,7 @@
   },
   "scripts": {
     "start": "node -p \"'export const REACT_APP_WCJS_VERSION = ' + JSON.stringify(require('./node_modules/@provenanceio/walletconnect-js/package.json').version)\" > src/version.js && REACT_APP_NETWORK=testnet react-scripts start",
-    "build": "REACT_APP_NETWORK=testnet react-scripts build",
+    "build": "node -p \"'export const REACT_APP_WCJS_VERSION = ' + JSON.stringify(require('./node_modules/@provenanceio/walletconnect-js/package.json').version)\" > src/version.js && REACT_APP_NETWORK=testnet react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
