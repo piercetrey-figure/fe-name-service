@@ -21,12 +21,16 @@ const TabHeaderWrapper = styled.div`
 
 `
 
-const TabHeader = styled.button`
+interface TabHeaderProps {
+    active?: boolean
+}
+
+const TabHeader = styled.button<TabHeaderProps>`
     border: 1px solid ${Colors.DARK};
     border-bottom: none;
     display: inline-block;
     padding: 4px;
-    background: ${Colors.LIGHT};
+    background: ${({ active }) => active ? Colors.DARKEN : Colors.LIGHT};
     cursor: pointer;
     &:not(:last-child) {
         border-right: none;
@@ -55,7 +59,7 @@ const TabWrapper = styled.div`
 export const TabContainer: FunctionComponent<TabContainerProps> = ({ tabs }) => {
     const [selected, setSelected] = useState(0)
     return <TabContainerWrapper>
-        <TabHeaderWrapper>{tabs.map((tab, i) => <TabHeader key={`tab-${i}`} onClick={() => setSelected(i)}>{tab.title}</TabHeader>)}</TabHeaderWrapper>
+        <TabHeaderWrapper>{tabs.map((tab, i) => <TabHeader active={selected === i} key={`tab-${i}`} onClick={() => setSelected(i)}>{tab.title}</TabHeader>)}</TabHeaderWrapper>
         <TabWrapper>{tabs[selected].element}</TabWrapper>
     </TabContainerWrapper>
 }
