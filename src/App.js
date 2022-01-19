@@ -23,6 +23,9 @@ import { RegisterName } from "Components/RegisterName";
 import { WasmService } from "Services";
 import { NameContractService } from "./Services/NameContractService";
 import { ConversionUtil } from "./util/ConversionUtil";
+import { TabContainer } from "Components/Tabs";
+import { NameLookup } from "Components/NameLookup";
+import { Name, NameList } from "Components/NameList";
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -39,7 +42,7 @@ const HomeContainer = styled.div`
   flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   max-width: 100%;
   min-height: 100vh;
   position: relative;
@@ -54,23 +57,6 @@ const Content = styled.div`
   padding: 30px 50px;
   border-radius: 4px;
   margin-bottom: 40px;
-`;
-
-const NameList = styled.ul`
-  list-style-type: none;
-  padding-left: 0;
-  border-radius: 5px;
-  border: 1px solid black;
-  overflow: hidden;
-`;
-const Name = styled.li`
-  font-weight: 600;
-  font-size: 1.2rem;
-  padding: 10px;
-  background: white;
-  &:not(:last-child) {
-    border-bottom: 1px solid black;
-  }
 `;
 
 export const App = () => {
@@ -134,7 +120,6 @@ export const App = () => {
       console.log("Adding event listeners");
       setListenersAdded(true);
       wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
-        // TODO: Reload names after a successful custom action
         console.log(
           `WalletConnectJS | Custom Action Complete | Result: `,
           result
@@ -170,47 +155,66 @@ export const App = () => {
         <Content>
           {connected ? (
             <>
-              {peer?.name && (
-                <Text>
-                  Wallet:{" "}
-                  {peer.url ? (
-                    <a href={peer.url} target="_blank" rel="noreferrer">
-                      {peer.name}
-                    </a>
-                  ) : (
-                    peer.name
-                  )}
-                </Text>
-              )}
-              <Text>
-                Address:{" "}
-                <a
-                  href={`${EXPLORER_URL}/accounts/${address}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {address}
-                </a>
-              </Text>
-              {hashAmount && <Text>Hash Balance: {hashAmount}</Text>}
-              <SubHeader>Your registered names</SubHeader>
-              <NameList>
-                {registeredNames.map((name) => (
-                  <Name key={name}>{name}</Name>
-                ))}
-              </NameList>
-              <RegisterName
-                onRegister={async (name) => {
-                  return wcs.customAction({
-                    message:
-                      await nameContractService.generateNameRegisterBase64Message(
-                        name,
-                        address
-                      ),
-                    description: `Register ${name} to ${address}`,
-                    method: "provenance_sendTransaction",
-                  });
-                }}
+              <TabContainer
+                tabs={[
+                  {
+                    title: "Your Names",
+                    element: (
+                      <>
+                        {peer?.name && (
+                          <Text>
+                            Wallet:{" "}
+                            {peer.url ? (
+                              <a
+                                href={peer.url}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {peer.name}
+                              </a>
+                            ) : (
+                              peer.name
+                            )}
+                          </Text>
+                        )}
+                        <Text>
+                          Address:{" "}
+                          <a
+                            href={`${EXPLORER_URL}/accounts/${address}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {address}
+                          </a>
+                        </Text>
+                        {hashAmount && <Text>Hash Balance: {hashAmount}</Text>}
+                        <SubHeader>Your registered names</SubHeader>
+                        <NameList>
+                          {registeredNames.map((name) => (
+                            <Name key={name}>{name}</Name>
+                          ))}
+                        </NameList>
+                        <RegisterName
+                          onRegister={async (name) => {
+                            return wcs.customAction({
+                              message:
+                                await nameContractService.generateNameRegisterBase64Message(
+                                  name,
+                                  address
+                                ),
+                              description: `Register ${name} to ${address}`,
+                              method: "provenance_sendTransaction",
+                            });
+                          }}
+                        />
+                      </>
+                    ),
+                  },
+                  {
+                    title: "Name Lookup",
+                    element: <NameLookup />,
+                  },
+                ]}
               />
               <Disconnect walletConnectService={wcs} setPopup={setPopup} />
             </>

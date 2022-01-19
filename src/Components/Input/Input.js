@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import PropTypes from "prop-types";
+import { Colors } from "consts";
 
 const InputContainer = styled.div`
   position: relative;
@@ -13,7 +14,8 @@ const StyledInput = styled.input`
   box-sizing: content-box;
   border-radius: 0;
   margin-right: 4px;
-  border: 1px solid #dddddd;
+  margin-bottom: 10px;
+  border: 1px solid ${Colors.DARK};
 `;
 const Label = styled.label`
   font-size: 1rem;

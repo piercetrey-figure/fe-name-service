@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
+import styled from "styled-components";
+import PropTypes from "prop-types";
+import { Colors } from "consts";
 
 const Container = styled.div`
-  margin-bottom: 42px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -23,15 +24,17 @@ const StyledSelect = styled.select`
   padding: 14px 18px;
   border-radius: 4px;
   margin: 0;
-  border: 1px solid #42368E;
+  border: 1px solid ${Colors.DARK};
   font-size: 1.4rem;
-  flex-grow: ${({ type }) => type === 'radio' ? 'initial' : '1' };
+  flex-grow: ${({ type }) => (type === "radio" ? "initial" : "1")};
   font-weight: bold;
-  background: #A9ADFF;
+  background: ${Colors.LIGHT};
   cursor: pointer;
-  color: #42368E;
-  &:focus, &:focus-visible, &:active {
-    outline-color: #42368E;
+  color: ${Colors.DARK};
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline-color: ${Colors.DARK};
   }
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -39,15 +42,14 @@ const StyledSelect = styled.select`
 `;
 const DropdownIcon = styled.div`
   position: absolute;
-  display: flex;
-  top: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 18px;
-  align-items: center;
-  justify-content: center;
-  color: #42368E;
+  color: ${Colors.TEXT};
   pointer-events: none;
   cursor: pointer;
   font-size: 1.8rem;
+  text-align: middle;
   font-weight: bold;
 `;
 const Label = styled.label`
@@ -66,16 +68,22 @@ const Dropdown = ({
   value: initialValue,
   onChange,
 }) => {
-  const renderOptions = () => options.map((title, index) => (
-    <option key={title} value={title} disabled={index === 0}>{title}</option>
-  ));
+  const renderOptions = () =>
+    options.map((title, index) => (
+      <option key={title} value={title} disabled={index === 0}>
+        {title}
+      </option>
+    ));
 
   return (
     <Container className={className}>
       {label && <Label htmlFor={name}>{label}</Label>}
       <Group>
         <SelectContainer>
-          <StyledSelect value={initialValue || options[0]} onChange={({ target }) => onChange(target.value)}>
+          <StyledSelect
+            value={initialValue || options[0]}
+            onChange={({ target }) => onChange(target.value)}
+          >
             {renderOptions()}
           </StyledSelect>
           <DropdownIcon>^</DropdownIcon>
@@ -94,8 +102,8 @@ Dropdown.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 Dropdown.defaultProps = {
-  className: '',
-  label: '',
+  className: "",
+  label: "",
   value: null,
 };
 
