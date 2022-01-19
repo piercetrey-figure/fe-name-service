@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useWalletConnect, QRCodeModal } from "@provenanceio/walletconnect-js";
+import {useWalletConnect, QRCodeModal, WINDOW_MESSAGES as WINDOW_MESSAGE} from "@provenanceio/walletconnect-js";
 import styled from "styled-components";
 import {
   Action,
@@ -18,6 +18,8 @@ import { Header, SubHeader } from "Components/Headers";
 import { RegisterName } from "Components/RegisterName";
 import { WasmService } from "Services";
 import { NameContractService } from "./Services/NameContractService";
+import { ConversionUtil } from "./util/ConversionUtil";
+
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -73,6 +75,8 @@ export const App = () => {
   const [popupStatus, setPopupStatus] = useState("success");
   const [popupDuration, setPopupDuration] = useState(2500);
   const [activeMethod, setActiveMethod] = useState("");
+  const [hashAmount, setHashAmount] = useState(null);
+  const [listenersAdded, setListenersAdded] = useState(false);
 
   const { walletConnectService: wcs, walletConnectState } = useWalletConnect();
   const { address, connected, peer } = walletConnectState;
@@ -86,6 +90,22 @@ export const App = () => {
       setPopupDuration(duration);
     }
   };
+
+  useEffect(() => {
+    if (!listenersAdded) {
+      console.log("Adding event listeners");
+      setListenersAdded(true);
+      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
+        console.log(`WalletConnectJS | Custom Action Complete | Result: `, result);
+      });
+
+      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_FAILED, (result) => {
+        const { error } = result;
+        console.log(`WalletConnectJS | Custom Action Failed | result, error: `, result, error);
+      });
+    }
+  }, [listenersAdded]);
+
 
   const dropdownOptions = ALL_ACTIONS.map(({ method }) => method);
   dropdownOptions.sort();
@@ -105,6 +125,20 @@ export const App = () => {
       setRegisteredNames([]);
     }
   }, [address]);
+
+  useEffect(() => {
+    if (address) {
+      grpcService.getBalancesList(address)
+          .then(balances => {
+            let hashAmount = ConversionUtil.getHashBalance(balances);
+            if (hashAmount) {
+              setHashAmount(hashAmount);
+            }
+          });
+    } else {
+      setHashAmount(null);
+    }
+  })
 
   const renderActions = () =>
     ALL_ACTIONS.map(({ method, fields, buttonTxt, windowMessage }) =>
@@ -158,6 +192,11 @@ export const App = () => {
                   {address}
                 </a>
               </Text>
+              {hashAmount && (
+                  <Text>
+                    Hash Balance:{" "}{hashAmount}
+                  </Text>
+              )}
               <SubHeader>Your registered names</SubHeader>
               <NameList>
                 {registeredNames.map((name) => (
@@ -167,18 +206,16 @@ export const App = () => {
               <RegisterName
                 onRegister={(name) => {
                   return nameContractService
-                    .generateNameRegisterMessage(name)
+                    .generateNameRegisterMessage(name, address)
                     .then((msg) => {
-                      const rawMsg = Buffer.from(
-                        msg.serializeBinary()
-                      ).toString("base64");
-                      console.log("generated message", msg, rawMsg);
-                      wcs.customAction({
-                        message: rawMsg,
-                        description: `Register ${name} to ${address}`,
-                        method: msg.getTypeUrl(),
+                        console.log("generated message", msg);
+                        wcs.transaction()
+                        wcs.customAction({
+                          message: msg,
+                          description: `Register ${name} to ${address}`,
+                          method: "provenance_sendTransaction",
+                        }).then(response => console.log(response));
                       });
-                    });
                 }}
               />
               <Disconnect walletConnectService={wcs} setPopup={setPopup} />
