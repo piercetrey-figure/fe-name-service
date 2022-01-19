@@ -1,16 +1,13 @@
 import { QueryAddressByName, QueryAddressByNameResponse, QueryNamesByAddress, QueryNamesByAddressResponse, QuerySettingsResponse } from 'models';
 import { WasmService } from 'Services';
-import { MsgClient as WasmClient } from '@provenanceio/wallet-lib/lib/proto/cosmwasm/wasm/v1/tx_grpc_web_pb'
 import { MsgExecuteContract } from '@provenanceio/wallet-lib/lib/proto/cosmwasm/wasm/v1/tx_pb'
 import { Coin } from '@provenanceio/wallet-lib/lib/proto/cosmos/base/v1beta1/coin_pb'
 import { Any } from '@provenanceio/wallet-lib/lib/proto/google/protobuf/any_pb'
 import { QuerySettings, RegisterName } from '../models/NameContract';
 import { FEE_DENOM } from 'consts';
-import { MessageService } from '@provenanceio/wallet-lib';
 
 export class NameContractService {
     wasmService = new WasmService()
-    messageService = new MessageService()
     contractAddress: string | null = null
     rootName: string
 
@@ -43,23 +40,22 @@ export class NameContractService {
             .then(queryRes => queryRes.address)
     }
 
-    generateNameRegisterMessage(name: string, address: string): Promise<string> {
+    generateNameRegisterBase64Message(name: string, address: string): Promise<string> {
         return Promise.all([
             this.getContractAddress(),
             this.getContractConfig()
         ])
         .then(([contractAddr, contractConfig]) => {
-            console.log(contractConfig.fee_amount);
-            const msg = new MsgExecuteContract()
-                .setMsg(Buffer.from(new RegisterName().setName(name).toJson(), 'utf-8'))
+            const message = new MsgExecuteContract()
+                .setMsg(Buffer.from(new RegisterName().setName(name).toJson(), 'utf-8').toString('base64'))
                 .setFundsList([new Coin().setAmount(contractConfig.fee_amount).setDenom(FEE_DENOM)])
                 .setContract(contractAddr)
                 .setSender(address);
-            return this.messageService.createAnyMessageBase64('MsgExecuteContract', msg);
             // Directly hardcoded from https://github.com/CuCreekCo/ProvenanceWalletConnect/blob/d2227d716ddb3f95783624b50e0e70220e33a858/ProvenanceWalletConnect/Handlers/WalletConnectHandlers.swift#L408
-            // return new Any()
-            //     .setTypeUrl("/cosmwasm.wasm.v1.MsgExecuteContract")
-            //     .setValue(message.serializeBinary());
+            const any = new Any()
+                .setTypeUrl("/cosmwasm.wasm.v1.MsgExecuteContract")
+                .setValue(message.serializeBinary());
+            return Buffer.from(any.serializeBinary()).toString("base64");
         })
     }
 }

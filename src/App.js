@@ -96,6 +96,7 @@ export const App = () => {
       console.log("Adding event listeners");
       setListenersAdded(true);
       wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
+        // TODO: Reload names after a successful custom action
         console.log(`WalletConnectJS | Custom Action Complete | Result: `, result);
       });
 
@@ -204,18 +205,17 @@ export const App = () => {
                 ))}
               </NameList>
               <RegisterName
-                onRegister={(name) => {
-                  return nameContractService
-                    .generateNameRegisterMessage(name, address)
-                    .then((msg) => {
-                        console.log("generated message", msg);
-                        wcs.customAction({
-                          message: msg,
-                          description: `Register ${name} to ${address}`,
-                          method: "provenance_sendTransaction",
-                        }).then(response => console.log(response));
-                      });
-                }}
+                  onRegister={(name) => {
+                    return nameContractService
+                        .generateNameRegisterBase64Message(name, address)
+                        .then((msg) => {
+                          wcs.customAction({
+                            message: msg,
+                            description: `Register ${name} to ${address}`,
+                            method: "provenance_sendTransaction",
+                          });
+                        });
+                  }}
               />
               <Disconnect walletConnectService={wcs} setPopup={setPopup} />
             </>
