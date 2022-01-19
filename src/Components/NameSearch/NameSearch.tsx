@@ -7,12 +7,24 @@ import {ROOT_NAME} from "../../consts";
 import { Input } from "Components";
 import { SubHeader } from "Components/Headers";
 import {Name, NameList} from "../NameList";
+import {useDebouncedCallback} from "use-debounce";
 
 export interface NameSearchProps {
 
 }
 
 const SearchResults = styled.div``;
+
+const StyledInput = styled.input`
+  padding: 4px 10px;
+  height: 30px;
+  width: 100%;
+  box-sizing: content-box;
+  border-radius: 0;
+  margin-right: 4px;
+  margin-bottom: 10px;
+  border: 1px solid ${Colors.DARK};
+`;
 
 const SearchError = styled.div`
     background: ${Colors.WARN};
@@ -31,40 +43,42 @@ const isSearchValid = (val: string) => val.trim() !== '';
 
 export const NameSearch: FunctionComponent<NameSearchProps> = ({ }) => {
     const [searchValue, setSearchValue] = useState('');
-    const [submitting, setSubmitting] = useState(false);
     const [searchResults, setSearchResults] = useState<NameMetaData[]>([]);
     const [searchError, setSearchError] = useState('');
 
     const nameService = new NameContractService(ROOT_NAME);
 
-    const handleSearch = async (target: string) => {
+    const debouncedSearch = useDebouncedCallback((target: string) => {
         setSearchValue(target);
         if (!isSearchValid(target)) {
             setSearchResults([]);
             setSearchError('');
             return;
         }
-        setSubmitting(true);
         setSearchResults([]);
         setSearchError('');
-        try {
-            const searchResultArray = await nameService.searchNames(target);
-            if (searchResultArray.length === 0) {
-                setSearchError(`No results found for "${target}"`);
-            }
-            setSubmitting(false);
-            setSearchResults(searchResultArray);
-        } catch (e) {
-            if (e instanceof Error) {
-                setSearchError(e.message);
-            }
-            setSubmitting(false);
-        }
+        nameService.searchNames(target)
+            .then(searchResultArray => {
+                if (searchResultArray.length === 0) {
+                    setSearchError(`No results found for "${target}"`);
+                }
+                setSearchResults(searchResultArray);
+            })
+            .catch(e => {
+                if (e instanceof Error) {
+                    setSearchError(e.message);
+                }
+            });
+    }, 500);
+
+    const handleSearchTextInput = (text: string) => {
+        setSearchValue(text);
+        debouncedSearch(text);
     };
 
     return <NameSearchWrapper>
         <form>
-            <Input label={"Search for names containing"} value={searchValue} onChange={handleSearch} />
+            <Input label={"Search for names containing"} value={searchValue} onChange={handleSearchTextInput} />
         </form>
         {searchError && <SearchError>{searchError}</SearchError>}
         {!searchError && searchResults.length > 0 && <SearchResults>
