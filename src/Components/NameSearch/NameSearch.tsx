@@ -1,30 +1,21 @@
 import { Colors } from "consts";
 import styled from "styled-components";
 import {FunctionComponent, useState} from "react";
-import {NameMetaData} from "../../models";
-import {NameContractService} from "../../Services/NameContractService";
-import {ROOT_NAME} from "../../consts";
+import {NameMetaData} from "models";
+import {NameContractService} from "Services/NameContractService";
+import {ROOT_NAME} from "consts";
 import { Input } from "Components";
 import { SubHeader } from "Components/Headers";
-import {Name, NameList} from "../NameList";
+import {Name, NameList} from "Components/NameList";
 import {useDebouncedCallback} from "use-debounce";
+import AddressLink from "Components/AddressLink";
+import {BigParagraph} from "Components/Display";
 
 export interface NameSearchProps {
 
 }
 
 const SearchResults = styled.div``;
-
-const StyledInput = styled.input`
-  padding: 4px 10px;
-  height: 30px;
-  width: 100%;
-  box-sizing: content-box;
-  border-radius: 0;
-  margin-right: 4px;
-  margin-bottom: 10px;
-  border: 1px solid ${Colors.DARK};
-`;
 
 const SearchError = styled.div`
     background: ${Colors.WARN};
@@ -84,7 +75,11 @@ export const NameSearch: FunctionComponent<NameSearchProps> = ({ }) => {
         {!searchError && searchResults.length > 0 && <SearchResults>
             <SubHeader>Results for "{searchValue}":</SubHeader>
             <NameList>
-                {searchResults.map((result, i) => <Name key={`result-${i}`}>Name: {result.name} | Address: {result.address}</Name>)}
+                {searchResults.map((result, i) => <Name key={`result-${i}`}>
+                    <BigParagraph>Name: {result.name}</BigParagraph>
+                    <br />
+                    <AddressLink address={result.address} />
+                </Name>)}
             </NameList>
         </SearchResults>}
     </NameSearchWrapper>;

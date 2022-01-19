@@ -5,28 +5,21 @@ import {
   WINDOW_MESSAGES as WINDOW_MESSAGE,
 } from "@provenanceio/walletconnect-js";
 import styled from "styled-components";
-import {
-  Action,
-  Connect,
-  Disconnect,
-  Dropdown,
-  Input,
-  Popup,
-} from "Components";
-import { ALL_ACTIONS, GRPC_URL, ROOT_NAME } from "consts";
+import {Connect, Disconnect, Popup } from "Components";
+import { ROOT_NAME } from "consts";
 import { REACT_APP_WCJS_VERSION } from "./version"; // eslint-disable-line
-import { EXPLORER_URL } from "consts";
 import { useWallet } from "@provenanceio/wallet-lib";
 import { TEXT_ACCENT, PRIMARY_BACKGROUND, TEXT } from "./consts/colors";
 import { Header, SubHeader } from "Components/Headers";
 import { RegisterName } from "Components/RegisterName";
-import { WasmService } from "Services";
 import { NameContractService } from "./Services/NameContractService";
 import { ConversionUtil } from "./util/ConversionUtil";
 import { TabContainer } from "Components/Tabs";
 import { NameLookup } from "Components/NameLookup";
 import { Name, NameList } from "Components/NameList";
 import { NameSearch } from "Components/NameSearch";
+import AddressLink from "Components/AddressLink";
+import { BigParagraph } from "Components/Display";
 
 const Wrapper = styled.div`
   background: ${PRIMARY_BACKGROUND};
@@ -48,11 +41,6 @@ const HomeContainer = styled.div`
   min-height: 100vh;
   position: relative;
 `;
-const Text = styled.p`
-  font-size: 1.6rem;
-  line-height: 3rem;
-  margin: 0;
-`;
 const Content = styled.div`
   min-width: 600px;
   padding: 30px 50px;
@@ -64,7 +52,6 @@ export const App = () => {
   const [popupContent, setPopupContent] = useState("");
   const [popupStatus, setPopupStatus] = useState("success");
   const [popupDuration, setPopupDuration] = useState(2500);
-  const [activeMethod, setActiveMethod] = useState("");
   const [hashAmount, setHashAmount] = useState(null);
   const [listenersAdded, setListenersAdded] = useState(false);
 
@@ -163,7 +150,7 @@ export const App = () => {
                     element: (
                       <>
                         {peer?.name && (
-                          <Text>
+                          <BigParagraph>
                             Wallet:{" "}
                             {peer.url ? (
                               <a
@@ -176,19 +163,10 @@ export const App = () => {
                             ) : (
                               peer.name
                             )}
-                          </Text>
+                          </BigParagraph>
                         )}
-                        <Text>
-                          Address:{" "}
-                          <a
-                            href={`${EXPLORER_URL}/accounts/${address}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {address}
-                          </a>
-                        </Text>
-                        {hashAmount && <Text>Hash Balance: {hashAmount}</Text>}
+                        <AddressLink address={address} />
+                        {hashAmount && <BigParagraph>Hash Balance: {hashAmount}</BigParagraph>}
                         <SubHeader>Your registered names</SubHeader>
                         <NameList>
                           {registeredNames.map((name) => (
