@@ -30,7 +30,7 @@ export const NameLookup: FunctionComponent<NameLookupProps> = ({ }) => {
     const [value, setValue] = useState('')
     const [submitting, setSubmitting] = useState(false)
     const [lookupType, setLookupType] = useState('name')
-    const valueValid = value.trim() != ''
+    const valueValid = (val: string) => val.trim() != ''
 
     const [results, setResults] = useState<string[]>([])
     const [additionalNames, setAdditionalNames] = useState<string[]>([])
@@ -69,7 +69,7 @@ export const NameLookup: FunctionComponent<NameLookupProps> = ({ }) => {
         <Dropdown label="lookup type" name="lookupType" value={lookupType} options={['select a lookup type', 'name', 'address']} onChange={(t) => setLookupType(t)}></Dropdown>
         <form>
             <Input label={lookupType.slice(0, 1).toUpperCase() + lookupType.slice(1)} value={value} onChange={(v) => setValue(v)} />
-            <Button type="submit" disabled={!valueValid || submitting} onClick={() => handleLookup()}>Lookup</Button>
+            <Button type="submit" disabled={!valueValid(value) || submitting} onClick={() => handleLookup()}>Lookup</Button>
         </form>
         {searchError && <SearchError>{searchError}</SearchError>}
         {!searchError && results.length > 0 && <Results>
