@@ -9,10 +9,14 @@ export class ConversionUtil {
         if (!nhash?.amount) {
             return null;
         }
+        return this.convertStringNanoHashToHash(nhash.amount);
+    }
+
+    static convertStringNanoHashToHash(nanoHash: string): number | null {
         try {
-            return this.convertNanoHashToHash(+nhash.amount);
+            return this.convertNanoHashToHash(+nanoHash);
         } catch (error) {
-            console.log(`Failed to convert derived nano amount [${nhash?.amount}] to hash: ${error}`);
+            console.log(`Failed to convert derived nano amount [${nanoHash}] to hash: ${error}`)
             return null;
         }
     }
