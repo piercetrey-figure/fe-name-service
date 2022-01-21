@@ -1,7 +1,7 @@
 {
-  "name": "fe-invoice",
+  "name": "fe-name-service",
   "version": "0.1.0",
-  "homepage": "http://piercetrey-figure.github.io/fe-invoice",
+  "homepage": "http://piercetrey-figure.github.io/fe-name-service",
   "license": "Apache-2.0",
   "private": false,
   "devDependencies": {
