@@ -103,6 +103,22 @@ export const App = () => {
     fetchBalance();
   }, [address]);
 
+  const [registrationCost, setRegistrationCost] = useState(null);
+
+  const fetchRegistrationCost = () => {
+    if (address) {
+      nameContractService.getContractConfig().then(config => {
+        let cost = ConversionUtil.convertStringNanoHashToHash(config.fee_amount);
+        if (cost) {
+          setRegistrationCost(cost);
+        }
+      });
+    } else {
+      setRegistrationCost(null);
+    }
+  };
+  useEffect(fetchRegistrationCost, [registrationCost]);
+
   useEffect(() => {
     if (!listenersAdded) {
       console.log("Adding event listeners");
@@ -114,6 +130,7 @@ export const App = () => {
         );
         fetchNames();
         fetchBalance();
+        fetchRegistrationCost();
       });
 
       wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_FAILED, (result) => {
@@ -174,17 +191,19 @@ export const App = () => {
                           ))}
                         </NameList>
                         <RegisterName
-                          onRegister={async (name) => {
-                            return wcs.customAction({
-                              message:
-                                await nameContractService.generateNameRegisterBase64Message(
-                                  name,
-                                  address
-                                ),
-                              description: `Register ${name} to ${address}`,
-                              method: "provenance_sendTransaction",
-                            });
-                          }}
+                            currentHash={hashAmount}
+                            registrationCostHash={registrationCost}
+                            onRegister={async (name) => {
+                              return wcs.customAction({
+                                message:
+                                    await nameContractService.generateNameRegisterBase64Message(
+                                        name,
+                                        address
+                                    ),
+                                description: `Register ${name} to ${address}`,
+                                method: "provenance_sendTransaction",
+                              });
+                            }}
                         />
                       </>
                     ),
