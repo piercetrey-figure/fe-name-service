@@ -12,7 +12,7 @@ import { useWallet } from "@provenanceio/wallet-lib";
 import { TEXT_ACCENT, PRIMARY_BACKGROUND, TEXT } from "./consts/colors";
 import { Header, SubHeader } from "Components/Headers";
 import { RegisterName } from "Components/RegisterName";
-import { NameContractService } from "./services/NameContractService";
+import { NameContractService } from "services/NameContractService";
 import { ConversionUtil } from "./util/ConversionUtil";
 import { TabContainer } from "Components/Tabs";
 import { NameLookup } from "Components/NameLookup";
