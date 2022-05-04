@@ -5,14 +5,14 @@ import {
   WINDOW_MESSAGES as WINDOW_MESSAGE,
 } from "@provenanceio/walletconnect-js";
 import styled from "styled-components";
-import {Connect, Disconnect, Popup } from "Components";
+import { Connect, Disconnect, Popup } from "Components";
 import { ROOT_NAME } from "consts";
 import { REACT_APP_WCJS_VERSION } from "./version"; // eslint-disable-line
 import { useWallet } from "@provenanceio/wallet-lib";
 import { TEXT_ACCENT, PRIMARY_BACKGROUND, TEXT } from "./consts/colors";
 import { Header, SubHeader } from "Components/Headers";
 import { RegisterName } from "Components/RegisterName";
-import { NameContractService } from "./Services/NameContractService";
+import { NameContractService } from "./services/NameContractService";
 import { ConversionUtil } from "./util/ConversionUtil";
 import { TabContainer } from "Components/Tabs";
 import { NameLookup } from "Components/NameLookup";
@@ -166,7 +166,11 @@ export const App = () => {
                           </BigParagraph>
                         )}
                         <AddressLink address={address} />
-                        {hashAmount && <BigParagraph>Hash Balance: {hashAmount}</BigParagraph>}
+                        {hashAmount && (
+                          <BigParagraph>
+                            Hash Balance: {hashAmount}
+                          </BigParagraph>
+                        )}
                         <SubHeader>Your registered names</SubHeader>
                         <NameList>
                           {registeredNames.map((name) => (

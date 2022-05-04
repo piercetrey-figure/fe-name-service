@@ -2,7 +2,7 @@ import { Colors } from "consts";
 import styled from "styled-components";
 import {FunctionComponent, useState} from "react";
 import {NameMetaData} from "models";
-import {NameContractService} from "Services/NameContractService";
+import {NameContractService} from "services/NameContractService";
 import {ROOT_NAME} from "consts";
 import { Input } from "Components";
 import { SubHeader } from "Components/Headers";
