@@ -3,7 +3,7 @@ import { SubHeader } from "Components/Headers";
 import { Name, NameList } from "Components/NameList";
 import { Colors, ROOT_NAME } from "consts";
 import { FunctionComponent, useState } from "react";
-import { NameContractService } from "services/NameContractService";
+import { NameContractService } from "services";
 import styled from "styled-components";
 
 export interface NameLookupProps {
