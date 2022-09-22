@@ -69,7 +69,7 @@ export const NameSearch: FunctionComponent<NameSearchProps> = ({ }) => {
 
     return <NameSearchWrapper>
         <form>
-            <Input label={"Search for names containing"} value={searchValue} onChange={handleSearchTextInput} />
+            <Input label="Search for names containing" value={searchValue} onChange={handleSearchTextInput} />
         </form>
         {searchError && <SearchError>{searchError}</SearchError>}
         {!searchError && searchResults.length > 0 && <SearchResults>

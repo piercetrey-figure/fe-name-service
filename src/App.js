@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   useWalletConnect,
   QRCodeModal,
-  WINDOW_MESSAGES as WINDOW_MESSAGE,
+  WINDOW_MESSAGES,
 } from "@provenanceio/walletconnect-js";
 import styled from "styled-components";
 import { Connect, Disconnect, Popup } from "Components";
@@ -104,28 +104,40 @@ export const App = () => {
   }, [address]);
 
   useEffect(() => {
-    if (!listenersAdded) {
-      console.log("Adding event listeners");
-      setListenersAdded(true);
-      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_COMPLETE, (result) => {
-        console.log(
-          `WalletConnectJS | Custom Action Complete | Result: `,
-          result
-        );
-        fetchNames();
-        fetchBalance();
-      });
+    console.log("Adding event listeners");
+    const actionCompleteListener = (result) => {
+      console.log(
+        `WalletConnectJS | Custom Action Complete | Result: `,
+        result
+      );
+      fetchNames();
+      fetchBalance();
+    };
+    wcs.addListener(
+      WINDOW_MESSAGES.CUSTOM_ACTION_COMPLETE,
+      actionCompleteListener
+    );
 
-      wcs.addListener(WINDOW_MESSAGE.CUSTOM_ACTION_FAILED, (result) => {
-        const { error } = result;
-        console.log(
-          `WalletConnectJS | Custom Action Failed | result, error: `,
-          result,
-          error
-        );
-      });
-    }
-  }, [listenersAdded]);
+    const actionFailedListener = (result) => {
+      const { error } = result;
+      console.log(
+        `WalletConnectJS | Custom Action Failed | result, error: `,
+        result,
+        error
+      );
+    };
+    wcs.addListener(WINDOW_MESSAGES.CUSTOM_ACTION_FAILED, actionFailedListener);
+    return () => {
+      wcs.removeListener(
+        WINDOW_MESSAGES.CUSTOM_ACTION_COMPLETE,
+        actionCompleteListener
+      );
+      wcs.removeListener(
+        WINDOW_MESSAGES.CUSTOM_ACTION_FAILED,
+        actionFailedListener
+      );
+    };
+  }, [wcs]);
 
   return (
     <Wrapper>

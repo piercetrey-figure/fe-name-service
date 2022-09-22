@@ -49,13 +49,13 @@ const DropdownIcon = styled.div`
   pointer-events: none;
   cursor: pointer;
   font-size: 1.8rem;
-  text-align: middle;
+  height: 0.8em;
   font-weight: bold;
 `;
 const Label = styled.label`
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
   font-weight: bold;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   display: inline-block;
   color: #333333;
 `;

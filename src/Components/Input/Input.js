@@ -6,23 +6,21 @@ const InputContainer = styled.div`
   position: relative;
   flex-basis: ${({ width }) => width};
   display: flex;
+  flex-direction: column;
 `;
 const StyledInput = styled.input`
   padding: 4px 10px;
   height: 30px;
-  width: 100%;
   box-sizing: content-box;
   border-radius: 0;
-  margin-right: 4px;
   margin-bottom: 10px;
   border: 1px solid ${Colors.DARK};
+  border-radius: 4px;
 `;
 const Label = styled.label`
-  font-size: 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
   font-weight: 700;
-  position: absolute;
-  top: -16px;
-  left: 0;
 `;
 
 const Input = ({
